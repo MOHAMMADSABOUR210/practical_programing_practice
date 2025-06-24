@@ -1,5 +1,6 @@
 import curses
 import random 
+import time
 
 stdscr = curses.initscr()
 
@@ -16,6 +17,7 @@ maxc = curses.COLS - 1
 score = 0
 world = []
 player_c = player_l = 0
+enemy = []
 food = []
 
 def random_place():
@@ -37,6 +39,12 @@ def init():
         fl , fc = random_place()
         fa = random.randint(1000,10000)
         food.append((fl,fc,fa))
+
+    for i in range(3):
+            el , ec = random_place()
+            enemy.append((el,ec))
+
+
     player_l , player_c = random_place()
 
 
@@ -51,6 +59,11 @@ def drow():
         fl , fc, fa = f 
         stdscr.addch(fl,fc,'*')
     
+    for e in enemy:
+        el , ec = e
+        stdscr.addch(el,ec,'E')
+
+
     stdscr.addch(player_l,player_c,'x')
     stdscr.refresh()
 
@@ -100,11 +113,45 @@ def check_food():
             nfa = random.randint(1000,10000)
             food[i] = (nfl, nfc, nfa)
 
+def move_enemy():
+    for i in range(len(enemy)):
+        el , ec = enemy[i]
+        if el == player_l and ec == player_c:
+            stdscr.addstr(maxl//2,maxc//2,"YOU DIED!!!")
+            stdscr.refresh()
+            time.sleep(3)
+            return True
+        if random.random() > 0.9 :
+            if el > player_l: 
+                el -= 1
+            el = in_range(el , maxl)
+            ec = in_range(ec , maxc)
+            enemy[i] = (el,ec)
+
+        if random.random() > 0.9 :
+            if ec > player_c:
+                ec -= 1
+            el = in_range(el , maxl)
+            ec = in_range(ec , maxc)
+            enemy[i] = (el,ec)
+
+        if random.random() > 0.9 :
+            if el < player_l:
+                el += player_l            
+            el = in_range(el , maxl)
+            ec = in_range(ec , maxc)
+            enemy[i] = (el,ec)
+
+        if random.random() > 0.9 :
+            if ec < player_c:
+                ec += player_c 
+            el = in_range(el , maxl)
+            ec = in_range(ec , maxc)
+            enemy[i] = (el,ec)
 
 init()
  
 list_c = []
-# last_c = ''
 while True:
     try : 
         c = stdscr.getkey()
@@ -118,6 +165,11 @@ while True:
     elif c == 'q':
         break
     check_food()
+    if move_enemy():
+        break
+    time.sleep(0.01)
+
     drow()
+
 
 print(list_c)
