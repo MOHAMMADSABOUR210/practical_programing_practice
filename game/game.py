@@ -5,10 +5,14 @@ import time
 stdscr = curses.initscr()
 
 
+testing = False
+
 curses.noecho()
 curses.cbreak()
 stdscr.keypad(True)
 stdscr.nodelay(True)
+curses.curs_set(False)
+
 
 maxl = curses.LINES - 1
 maxc = curses.COLS - 1
@@ -37,7 +41,7 @@ def init():
     
     for i in range(10):
         fl , fc = random_place()
-        fa = random.randint(1000,10000)
+        fa = random.randint(100,1000)
         food.append((fl,fc,fa))
 
     for i in range(3):
@@ -107,16 +111,24 @@ def check_food():
     global score
     for i in range(len(food)) : 
         fl, fc, fa = food[i]
+        fa -= 1 
         if fl == player_l and fc == player_c:
             score += 10 
             nfl , nfc = random_place()
-            nfa = random.randint(1000,10000)
+            nfa = random.randint(100,1000)
             food[i] = (nfl, nfc, nfa)
+        elif fa <= 0:
+            nfl , nfc = random_place()
+            nfa = random.randint(100,1000)
+            food[i] = (nfl, nfc, nfa)
+        else :
+            food[i] = (fl, fc, fa)
+
 
 def move_enemy():
     for i in range(len(enemy)):
         el , ec = enemy[i]
-        if el == player_l and ec == player_c:
+        if el == player_l and ec == player_c and not testing:
             stdscr.addstr(maxl//2,maxc//2,"YOU DIED!!!")
             stdscr.refresh()
             time.sleep(3)
@@ -137,14 +149,14 @@ def move_enemy():
 
         if random.random() > 0.9 :
             if el < player_l:
-                el += player_l            
+                el += 1            
             el = in_range(el , maxl)
             ec = in_range(ec , maxc)
             enemy[i] = (el,ec)
 
         if random.random() > 0.9 :
             if ec < player_c:
-                ec += player_c 
+                ec += 1 
             el = in_range(el , maxl)
             ec = in_range(ec , maxc)
             enemy[i] = (el,ec)
@@ -172,4 +184,6 @@ while True:
     drow()
 
 
-print(list_c)
+stdscr.addstr(maxl//2,maxc//2,"Game Over!!")
+stdscr.refresh()
+time.sleep(2)
