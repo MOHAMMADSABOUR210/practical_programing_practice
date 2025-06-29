@@ -7,4 +7,4 @@ for i in range(100,1000):
                     Three_digit.append(i)
 print(Three_digit)
 
-# Finding three-digit numbers divisible by 3 that are made with only two different numbers
+# Question: Finding three-digit numbers divisible by 3 that are made with only two different numbers
